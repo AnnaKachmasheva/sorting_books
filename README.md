@@ -1,4 +1,4 @@
-## Sorting books
+## Sorting books :books:
 This is simple program for sorting books.
 
 Has 2 parameters as an **input**:
