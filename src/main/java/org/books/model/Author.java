@@ -9,7 +9,11 @@ public record Author(
 
     @Override
     public String toString() {
-        return firstName + " " + lastName;
+        StringBuilder stringBuilder = new StringBuilder();
+        return stringBuilder.append(firstName)
+                            .append(" ")
+                            .append(lastName)
+                            .toString();
     }
 
 }
