@@ -12,10 +12,11 @@ import java.util.HashMap;
 @Slf4j
 public class Writer {
 
-    private final String[] header = {"ISBN", "Nazev", "Autor", "Vydano"};
     private static final String FOLDER = "csv_book/";
     private static final String FILE_FORMAT = ".csv";
     private static final char DELIMITER = ';';
+
+    private final String[] header = {"ISBN", "Nazev", "Autor", "Vydano"};
 
 
     void writeLineByLine(String fileName, HashMap<String, Book> books) {

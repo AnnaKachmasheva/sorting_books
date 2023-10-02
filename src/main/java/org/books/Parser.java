@@ -20,12 +20,6 @@ import java.util.HashMap;
 @Getter
 public class Parser {
 
-    private String path;
-    private int year;
-
-    private HashMap<String, Book> oldBook; // before year
-    private HashMap<String, Book> newBook; // after year
-
     private static final String LIST = "Seznam";
     private static final String BOOK = "Kniha";
     private static final String BOOK_ISBN = "ISBN";
@@ -35,31 +29,33 @@ public class Parser {
     private static final String AUTHOR_FIRST_NAME = "Jmeno";
     private static final String AUTHOR_LAST_NAME = "Prijmeni";
 
-    public Parser(String path, int year) {
-        this.path = path;
-        this.year = year;
-        this.oldBook = new HashMap<>();
-        this.newBook = new HashMap<>();
-    }
+    private HashMap<String, Book> oldBook = new HashMap<>(); // before year
+    private HashMap<String, Book> newBook = new HashMap<>(); // in and after year
 
-    void parse() {
+
+    void parse(String path, int year) {
         try {
             File file = Paths.get(path).normalize().toFile();
             XMLInputFactory factory = XMLInputFactory.newInstance();
             XMLEventReader eventReader = factory.createXMLEventReader(new FileReader(file));
 
-            String firstName = null,
-                    lastName = null,
-                    ISBN = null,
-                    name = null;
+            String firstName = null;
+            String lastName = null;
+            String ISBN = null;
+            String name = null;
             Author author = null;
             int releaseYear = 0;
-            boolean bName = false,
-                    isList = true;
-            while (eventReader.hasNext() && isList) {
+            boolean isTagName = false;
+            boolean isTagList = true;
+
+            while (eventReader.hasNext() && isTagList) {
+
                 XMLEvent event = eventReader.nextEvent();
+
                 if (event.isStartElement()) {
+
                     StartElement startElement = event.asStartElement();
+
                     switch (startElement.getName().getLocalPart()) {
                         case BOOK -> {
                             Attribute ISBNAttr = startElement.getAttributeByName(new QName(BOOK_ISBN));
@@ -75,20 +71,22 @@ public class Parser {
                             firstName = firstNameAttr.getValue();
                             lastName = lastNameAttr.getValue();
                         }
-                        case NAME -> bName = true;
+                        case NAME -> isTagName = true;
                     }
+
                 }
 
-                if (event.isCharacters() && bName) {
+                if (event.isCharacters() && isTagName) {
                     Characters characters = event.asCharacters();
-
                     name = characters.getData();
                 }
 
                 if (event.isEndElement()) {
+
                     EndElement endElement = event.asEndElement();
+
                     switch (endElement.getName().getLocalPart()) {
-                        case LIST -> isList = false;
+                        case LIST -> isTagList = false;
                         case BOOK -> {
                             Book book = Book.builder()
                                             .ISBN(ISBN)
@@ -96,14 +94,15 @@ public class Parser {
                                             .year(releaseYear)
                                             .author(author)
                                             .build();
-                            addBook(book);
+                            addBook(book, year);
                         }
                         case AUTHOR -> author = Author.builder()
                                                     .firstName(firstName)
                                                     .lastName(lastName)
                                                     .build();
-                        case NAME -> bName = false;
+                        case NAME -> isTagName = false;
                     }
+
                 }
             }
         } catch (FileNotFoundException e) {
@@ -114,7 +113,7 @@ public class Parser {
 
     }
 
-    private void addBook(Book book) {
+    private void addBook(Book book, int year) {
         String key = book.ISBN();
         int releaseYear = book.year();
 

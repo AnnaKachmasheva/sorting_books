@@ -20,8 +20,8 @@ public class Main {
             String path = args[0];
             int year = Integer.parseInt(args[1]);
 
-            Parser parser = new Parser(path, year);
-            parser.parse();
+            Parser parser = new Parser();
+            parser.parse(path, year);
             HashMap<String, Book> oldBooks = parser.getOldBook();
             HashMap<String, Book> newBooks = parser.getNewBook();
 

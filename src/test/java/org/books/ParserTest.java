@@ -18,8 +18,8 @@ class ParserTest {
     void parse(int year, int expectedOldBookCount, int expectedNewBookCount) {
         String path = "src/main/resources/knihy.xml";
 
-        Parser parser = new Parser(path, year);
-        parser.parse();
+        Parser parser = new Parser();
+        parser.parse(path, year);
 
         int countOldBook = parser.getOldBook().size();
         int countNewBook = parser.getNewBook().size();
